@@ -1,29 +1,32 @@
-package com.market.market.member.domain;
+package com.market.market.shop.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+public class Shop {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "member_name")
+    @Column(name = "shop_name")
     private String name;
 
+    @Column(name = "owner_id")
+    private Long ownerId;
+
     @Builder
-    public Member(
+    public Shop(
             Long id,
-            String name
+            String name,
+            Long ownerId
     ) {
         this.id = id;
+        this.ownerId = ownerId;
         this.name = name;
     }
 }
