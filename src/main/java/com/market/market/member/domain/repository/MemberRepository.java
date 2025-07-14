@@ -1,4 +1,4 @@
-package com.market.market.member.repository;
+package com.market.market.member.domain.repository;
 
 import com.market.market.member.domain.Member;
 import lombok.RequiredArgsConstructor;
