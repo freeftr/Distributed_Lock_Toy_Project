@@ -1,5 +1,6 @@
 package com.market.market.account.domain;
 
+import com.market.market.common.entity.BaseEntity;
 import com.market.market.common.exception.BadRequestException;
 import com.market.market.common.exception.ErrorCode;
 import jakarta.persistence.*;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Account {
+public class Account extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,11 +27,9 @@ public class Account {
 
     @Builder
     public Account(
-            Long id,
             Long ownerId,
             int balance
     ) {
-        this.id = id;
         this.ownerId = ownerId;
         this.balance = balance;
     }
