@@ -21,11 +21,9 @@ public class Shop {
 
     @Builder
     public Shop(
-            Long id,
             String name,
             Long ownerId
     ) {
-        this.id = id;
         this.ownerId = ownerId;
         this.name = name;
     }

@@ -14,4 +14,7 @@ public class ShopRepository {
     public Optional<Shop> findById(Long id) {
         return shopJpaRepository.findById(id);
     }
+    public Shop save(Shop shop) {
+        return shopJpaRepository.save(shop);
+    }
 }
