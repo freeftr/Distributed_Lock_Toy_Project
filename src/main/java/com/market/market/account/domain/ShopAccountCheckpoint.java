@@ -1,4 +1,4 @@
-package com.market.market.shop.domain;
+package com.market.market.account.domain;
 
 import com.market.market.common.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -14,22 +14,28 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Shop extends BaseEntity {
+public class ShopAccountCheckpoint extends BaseEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "shop_id", nullable = false)
+	@Column(name = "shop_account_check_point_id", nullable = false)
 	private Long id;
 
-	@Column(name = "shop_name", nullable = false)
-	private String name;
+	@Column(name = "shop_id", nullable = false)
+	private Long shopId;
+
+	@Column(name = "last_updated_id", nullable = false)
+	private Long lastUpdatedId;
 
 	@Builder
-	public Shop(
+	public ShopAccountCheckpoint (
 			Long id,
-			String name
+			Long shopId,
+			Long lastUpdatedId
 	) {
 		this.id = id;
-		this.name = name;
+		this.shopId = shopId;
+		this.lastUpdatedId = lastUpdatedId;
 	}
+
 }

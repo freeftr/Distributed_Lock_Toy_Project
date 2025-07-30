@@ -25,13 +25,19 @@ public class Account extends BaseEntity {
     @Column(name = "balance", nullable = false)
     private int balance;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "account_type", nullable = false)
+    private AccountType type;
+
     @Builder
     public Account(
             Long ownerId,
-            int balance
+            int balance,
+            AccountType type
     ) {
         this.ownerId = ownerId;
         this.balance = balance;
+        this.type = type;
     }
 
     public boolean checkOwner(Long id) {
