@@ -1,7 +1,7 @@
 package com.market.market.order.domain;
 
 public enum OrderStatus {
-    PENDING,
+    ONGOING,
     PAID,
     CANCELLED,
     CONFIRMED,
