@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@Table(name = "orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
 
@@ -17,11 +18,11 @@ public class Order extends BaseEntity {
     @Column(name = "order_id", nullable = false)
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @Column(name = "buyer_id", nullable = false)
+    private Long buyerId;
 
-    @Column(name = "shop_id", nullable = false)
-    private Long shopId;
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "order_status", nullable = false)
@@ -32,15 +33,23 @@ public class Order extends BaseEntity {
 
     @Builder
     public Order(
-            Long memberId,
-            Long shopId,
+            Long buyerId,
+            Long productId,
             OrderStatus orderStatus,
             int totalPrice
     ) {
-        this.memberId = memberId;
-        this.shopId = shopId;
+        this.buyerId = buyerId;
+        this.productId = productId;
         this.orderStatus = orderStatus;
         this.totalPrice = totalPrice;
+    }
+
+    public boolean isBuyer(Long memberId) {
+        return memberId.equals(this.buyerId);
+    }
+
+    public void confirm() {
+        this.orderStatus = OrderStatus.CONFIRMED;
     }
 
     public void paid() {
