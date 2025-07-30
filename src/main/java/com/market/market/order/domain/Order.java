@@ -31,17 +31,22 @@ public class Order extends BaseEntity {
     @Column(name = "total_price", nullable = false)
     private int totalPrice;
 
+    @Column(name = "amount", nullable = false)
+    private int amount;
+
     @Builder
     public Order(
             Long buyerId,
             Long productId,
             OrderStatus orderStatus,
-            int totalPrice
+            int totalPrice,
+            int amount
     ) {
         this.buyerId = buyerId;
         this.productId = productId;
         this.orderStatus = orderStatus;
         this.totalPrice = totalPrice;
+        this.amount = amount;
     }
 
     public boolean isBuyer(Long memberId) {

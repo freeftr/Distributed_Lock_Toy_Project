@@ -14,4 +14,8 @@ public class AccountRepository {
     public Optional<Account> findById (Long id) {
         return accountJpaRepository.findById(id);
     }
+
+    public Optional<Account> findByMemberId(Long memberId) {
+        return accountJpaRepository.findByMemberId(memberId);
+    }
 }
