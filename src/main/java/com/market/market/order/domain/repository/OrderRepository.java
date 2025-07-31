@@ -19,4 +19,8 @@ public class OrderRepository {
     public Optional<Order> findById(Long id) {
         return orderJpaRepository.findById(id);
     }
+
+    public Long count() {
+        return orderJpaRepository.count();
+    }
 }

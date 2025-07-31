@@ -14,9 +14,14 @@ public class ProductRepository {
 
     private final ProductJpaRepository productJpaRepository;
 
+    public Product save(Product product) {
+        return productJpaRepository.save(product);
+    }
+
     public Optional<Product> findById(Long id) {
         return productJpaRepository.findById(id);
     }
+
     public List<ProductDetail> getProductDetailsIn(List<Long> ids) {
         return productJpaRepository.getProductDetailIn(ids);
     }

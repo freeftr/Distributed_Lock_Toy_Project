@@ -37,14 +37,12 @@ public class Product extends BaseEntity {
 
     @Builder
     public Product(
-            Long id,
             String name,
             String detail,
             int price,
             int quantity,
             ProductStatus status
     ) {
-        this.id = id;
         this.name = name;
         this.detail = detail;
         this.price = price;

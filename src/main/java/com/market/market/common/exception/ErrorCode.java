@@ -11,6 +11,7 @@ public enum ErrorCode {
     PRODUCT_NOT_FOUND(2000, "존재하지 않는 상품입니다."),
     PRODUCT_ALREADY_SOLD_OUT(2001, "이미 품절된 상품입니다."),
     NOT_ENOUGH_STOCK(2002, "재고가 충분하지 않습니다."),
+    PRODUCT_IS_LOCKED_AOP(2003, "AOP 분산 락이 점유하고 있는 상태입니다."),
 
     ACCOUNT_NOT_FOUND(3000, "존재하지 않은 계좌입니다."),
     NOT_ENOUGH_BALANCE(3001, "잔액이 충분치 않습니다."),
