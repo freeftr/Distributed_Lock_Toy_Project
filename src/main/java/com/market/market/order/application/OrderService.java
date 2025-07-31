@@ -6,7 +6,6 @@ import com.market.market.common.exception.ErrorCode;
 import com.market.market.order.domain.Order;
 import com.market.market.order.domain.OrderStatus;
 import com.market.market.order.domain.repository.OrderRepository;
-import com.market.market.order.dto.request.OrderConfirmRequest;
 import com.market.market.order.dto.request.OrderRequest;
 import com.market.market.product.domain.Product;
 import com.market.market.product.domain.repository.ProductRepository;
@@ -20,17 +19,13 @@ public class OrderService {
 	private final ProductRepository productRepository;
 
 	@RedisLock(key = "'productId:' + #productId")
-	public void orderAopLock(
-			Long productId,
-			OrderRequest request
-	) {
+	public void orderAopLock(Long productId, OrderRequest request) {
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
 
 		if (product.getQuantity() < request.amount()) {
 			throw new BadRequestException(ErrorCode.NOT_ENOUGH_STOCK);
 		}
-
 
 		Order order = Order.builder()
 				.buyerId(request.buyerId())
@@ -39,25 +34,9 @@ public class OrderService {
 				.amount(request.amount())
 				.build();
 
-		orderRepository.save(order);
-	}
-
-
-	@RedisLock(key = "'productId:' + #productId")
-	public void confirmAopLock(Long orderId, OrderConfirmRequest request) {
-		Long buyerId = request.buyerId();
-
-		Order order = orderRepository.findById(orderId)
-				.orElseThrow(() -> new BadRequestException(ErrorCode.ORDER_NOT_FOUND));
-
-		if (!order.getBuyerId().equals(buyerId)) {
-			throw new BadRequestException(ErrorCode.UNAUTHORIZED_ORDER);
-		}
-
-		Product product = productRepository.findById(order.getProductId())
-				.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
-
 		order.confirm();
 		product.sold(order.getAmount());
+
+		orderRepository.save(order);
 	}
 }

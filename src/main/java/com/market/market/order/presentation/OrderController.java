@@ -17,20 +17,11 @@ public class OrderController {
 	private final OrderService orderService;
 
 	@PostMapping("/api/v1/products/{productId}/order")
-	public ResponseEntity<Void> createOrder(
+	public ResponseEntity<Void> orderAopLock(
 			@RequestBody OrderRequest request,
 			@PathVariable Long productId
 	) {
 		orderService.orderAopLock(productId, request);
-		return ResponseEntity.ok().build();
-	}
-
-	@PostMapping("/api/v1/orders/{orderId}/confirm")
-	private ResponseEntity<Void> confirmOrder(
-			@RequestBody OrderConfirmRequest request,
-			@PathVariable Long orderId
-	) {
-		orderService.confirmAopLock(orderId, request);
 		return ResponseEntity.ok().build();
 	}
 }
