@@ -21,7 +21,7 @@ public class OrderController {
 			@RequestBody OrderRequest request,
 			@PathVariable Long productId
 	) {
-		orderService.order(productId, request);
+		orderService.orderAopLock(productId, request);
 		return ResponseEntity.ok().build();
 	}
 
@@ -30,7 +30,7 @@ public class OrderController {
 			@RequestBody OrderConfirmRequest request,
 			@PathVariable Long orderId
 	) {
-		orderService.confirm(orderId, request);
+		orderService.confirmAopLock(orderId, request);
 		return ResponseEntity.ok().build();
 	}
 }
