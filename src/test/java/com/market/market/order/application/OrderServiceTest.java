@@ -46,7 +46,7 @@ class OrderServiceConcurrencyTest {
 	}
 
 	@Test
-	void 동시에_10개의_주문을_요청하면_정확히_10개만_성공한다() throws InterruptedException {
+	void 동시에_10개의_주문을_요청하면_정확히_1개만_성공한다() throws InterruptedException {
 		int threadCount = 10;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);
