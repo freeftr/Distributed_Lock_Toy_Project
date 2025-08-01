@@ -39,17 +39,16 @@ public class RedisLockAop {
 				lock.key()
 		);
 
-		String lockValue = null;
 		try {
-			lockValue = aopLockManager.tryLock(key);
-			if (lockValue == null) {
+			boolean available = aopLockManager.tryLock(key);
+			if (!available) {
 				throw new BadRequestException(ErrorCode.PRODUCT_IS_LOCKED_AOP);
 			}
 			return aopTransaction.proceed(joinPoint);
 		} catch (Exception e) {
 			throw e;
 		} finally {
-			aopLockManager.unLock(key, lockValue);
+			aopLockManager.unLock(key);
 		}
 	}
 }

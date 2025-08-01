@@ -8,20 +8,31 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("/api/v1/orders")
 @RequiredArgsConstructor
 public class OrderController {
 
 	private final OrderService orderService;
 
-	@PostMapping("/api/v1/products/{productId}/order")
+	@PostMapping("/{productId}/aop")
 	public ResponseEntity<Void> orderAopLock(
 			@RequestBody OrderRequest request,
 			@PathVariable Long productId
 	) {
 		orderService.orderAopLock(productId, request);
+		return ResponseEntity.ok().build();
+	}
+
+	@PostMapping("/{productId}/function")
+	public ResponseEntity<Void> orderFunctionalLock(
+			@RequestBody OrderRequest request,
+			@PathVariable Long productId
+	) {
+		orderService.orderFunctionalLock(productId, request);
 		return ResponseEntity.ok().build();
 	}
 }
