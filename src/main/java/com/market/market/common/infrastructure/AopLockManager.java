@@ -40,7 +40,7 @@ public class AopLockManager {
 					Duration.ofMillis(LEASE_TIME)
 			);
 
-			if (Boolean.TRUE.equals(isSuccess)) {
+			if (isSuccess) {
 				lockValueHolder.set(value);
 				return true;
 			}

@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.StopWatch;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -68,6 +69,9 @@ class OrderServiceTest {
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);
 
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+
 		for (int i = 0; i < threadCount; i++) {
 			executorService.submit(() -> {
 				try {
@@ -83,10 +87,14 @@ class OrderServiceTest {
 
 		latch.await();
 
+		stopWatch.stop();
+
 		ProductQuantity productQuantity = productQuantityRepository.findByProductId(productId)
 				.orElseThrow();
 
 		log.info("AOP 최종 재고: {}", productQuantity.getQuantity());
+		log.info("AOPLock 처리 시간: {} ms", stopWatch.getTotalTimeMillis());
+
 		assertThat(productQuantity.getQuantity()).isEqualTo(0);
 	}
 
@@ -99,6 +107,9 @@ class OrderServiceTest {
 		int threadCount = 100;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);
+
+		StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
 
 		for (int i = 0; i < threadCount; i++) {
 			executorService.submit(() -> {
@@ -115,10 +126,14 @@ class OrderServiceTest {
 
 		latch.await();
 
+		stopWatch.stop();
+
 		ProductQuantity productQuantity = productQuantityRepository.findByProductId(productId)
 				.orElseThrow();
 
 		log.info("Functional 최종 재고: {}", productQuantity.getQuantity());
+		log.info("FunctionalLock 처리 시간: {} ms", stopWatch.getTotalTimeMillis());
+
 		assertThat(productQuantity.getQuantity()).isEqualTo(0);
 	}
 }

@@ -1,7 +1,6 @@
 package com.market.market.order.presentation;
 
 import com.market.market.order.application.OrderService;
-import com.market.market.order.dto.request.OrderConfirmRequest;
 import com.market.market.order.dto.request.OrderRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +21,7 @@ public class OrderController {
 	public ResponseEntity<Void> orderAopLock(
 			@RequestBody OrderRequest request,
 			@PathVariable Long productId
-	) {
+	) throws InterruptedException {
 		orderService.orderAopLock(productId, request);
 		return ResponseEntity.ok().build();
 	}
@@ -31,7 +30,7 @@ public class OrderController {
 	public ResponseEntity<Void> orderFunctionalLock(
 			@RequestBody OrderRequest request,
 			@PathVariable Long productId
-	) {
+	) throws InterruptedException {
 		orderService.orderFunctionalLock(productId, request);
 		return ResponseEntity.ok().build();
 	}

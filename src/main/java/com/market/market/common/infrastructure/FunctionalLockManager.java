@@ -43,7 +43,7 @@ public class FunctionalLockManager {
 					Duration.ofMillis(LEASE_TIME)
 			);
 
-			if (Boolean.TRUE.equals(isSuccess)) {
+			if (isSuccess) {
 				lockValueHolder.set(value);
 				try {
 					return supplierTransaction.proceed(supplier);

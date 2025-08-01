@@ -11,7 +11,7 @@ import java.util.function.Supplier;
 @Component
 public class SupplierTransaction {
 
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	public <T> T proceed(Supplier<T> supplier) {
 		return supplier.get();
 	}

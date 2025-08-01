@@ -28,7 +28,8 @@ public class OrderService {
 	private final FunctionalLockManager functionalLockManager;
 
 	@RedisLock(key = "'productId:' + #productId")
-	public void orderAopLock(Long productId, OrderRequest request) {
+	public void orderAopLock(Long productId, OrderRequest request) throws InterruptedException {
+		Thread.sleep(50);
 
 		Member member = memberRepository.findById(request.buyerId())
 				.orElseThrow(() -> new BadRequestException(ErrorCode.MEMBER_NOT_FOUND));
@@ -56,15 +57,10 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
-	public void orderFunctionalLock(Long productId, OrderRequest request) {
+	public void orderFunctionalLock(Long productId, OrderRequest request) throws InterruptedException {
+		Thread.sleep(50);
+
 		String key = "productId:" + productId;
-
-		Member member = memberRepository.findById(request.buyerId())
-				.orElseThrow(() -> new BadRequestException(ErrorCode.MEMBER_NOT_FOUND));
-
-		Product product = productRepository.findById(productId)
-				.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
-
 		functionalLockManager.tryLock(key, () -> {
 			ProductQuantity quantity = productQuantityRepository.findByProductId(productId)
 					.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
@@ -72,6 +68,8 @@ public class OrderService {
 			quantity.decrease(request.amount());
 
 			if (quantity.isSoldOut()) {
+				Product product = productRepository.findById(productId)
+						.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
 				product.markSoldOut();
 			}
 
@@ -88,4 +86,5 @@ public class OrderService {
 			return null;
 		});
 	}
+
 }
