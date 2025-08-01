@@ -1,12 +1,13 @@
 package com.market.market.order.application;
 
-import com.market.market.order.domain.Order;
 import com.market.market.order.domain.repository.OrderRepository;
 import com.market.market.order.dto.request.OrderRequest;
 import com.market.market.product.domain.Product;
+import com.market.market.product.domain.ProductQuantity;
 import com.market.market.product.domain.ProductStatus;
+import com.market.market.product.domain.repository.ProductQuantityRepository;
 import com.market.market.product.domain.repository.ProductRepository;
-import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,7 @@ import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Slf4j
 @SpringBootTest
 class OrderServiceConcurrencyTest {
 
@@ -28,6 +30,9 @@ class OrderServiceConcurrencyTest {
 	private ProductRepository productRepository;
 
 	@Autowired
+	private ProductQuantityRepository productQuantityRepository;
+
+	@Autowired
 	private OrderRepository orderRepository;
 
 	private Long productId;
@@ -35,14 +40,19 @@ class OrderServiceConcurrencyTest {
 	@BeforeEach
 	void setUp() {
 		Product product = Product.builder()
-				.name("동시성 상품")
+				.name("테스트 상품")
 				.price(1000)
-				.detail("테스트용 상품입니다")
-				.quantity(10)
 				.status(ProductStatus.ON_SALE)
 				.build();
 
 		productId = productRepository.save(product).getId();
+
+		ProductQuantity quantity = ProductQuantity.builder()
+				.productId(productId)
+				.quantity(1)
+				.build();
+
+		productQuantityRepository.save(quantity);
 	}
 
 	@Test
@@ -59,7 +69,7 @@ class OrderServiceConcurrencyTest {
 					OrderRequest request = new OrderRequest(buyerId, 1);
 					orderService.orderAopLock(productId, request);
 				} catch (Exception e) {
-					System.out.println("주문 실패: " + e.getMessage());
+					log.error("주문 실패 " + e.getMessage(), e);
 				} finally {
 					latch.countDown();
 				}
@@ -68,10 +78,9 @@ class OrderServiceConcurrencyTest {
 
 		latch.await();
 
-		Product product = productRepository.findById(productId).orElseThrow();
+		ProductQuantity productQuantity = productQuantityRepository.findByProductId(productId)
+				.orElseThrow();
 
-		System.out.println("최종 재고: " + product.getQuantity());
-
-		assertThat(product.getQuantity()).isEqualTo(9);
+		assertThat(productQuantity.getQuantity()).isEqualTo(0);
 	}
 }

@@ -19,6 +19,8 @@ public enum ErrorCode {
 
     ORDER_NOT_FOUND(4000, "존재하지 않는 주문입니다."),
     UNAUTHORIZED_ORDER(4001, "주문자가 아닙니다."),
+
+    MEMBER_NOT_FOUND(4002, "존재하지 않는 회원입니다."),
     ;
 
     private final int code;
