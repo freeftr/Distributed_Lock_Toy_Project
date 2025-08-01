@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
-public class TransactionFacade {
+public class AopTransaction {
 
 	@Transactional
 	public Object proceed(final ProceedingJoinPoint joinPoint) throws Throwable {

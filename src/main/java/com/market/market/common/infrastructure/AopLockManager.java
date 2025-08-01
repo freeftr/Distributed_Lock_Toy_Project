@@ -11,7 +11,7 @@ import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
-public class RedisLockManager {
+public class AopLockManager {
 
 	private static final String LOCK_REMOVE_SCRIPT =
 			"""
@@ -22,14 +22,12 @@ public class RedisLockManager {
 			end
 			""";
 
-	private static final ThreadLocal<String> lockValueHolder = new ThreadLocal<>();
-
-	private static final long WAIT_TIME = 3000L;
-	private static final long LEASE_TIME = 10000L;
+	private static final long WAIT_TIME = 10_000L;
+	private static final long LEASE_TIME = 10_000L;
 
 	private final RedisTemplate<String, Object> redisTemplate;
 
-	public boolean tryLock(String key) {
+	public String tryLock(String key) {
 		String value = UUID.randomUUID().toString();
 		long endTime = System.currentTimeMillis() + WAIT_TIME;
 
@@ -40,9 +38,8 @@ public class RedisLockManager {
 					Duration.ofMillis(LEASE_TIME)
 			);
 
-			if (isSuccess) {
-				lockValueHolder.set(value);
-				return true;
+			if (Boolean.TRUE.equals(isSuccess)) {
+				return value;
 			}
 
 			try {
@@ -53,21 +50,16 @@ public class RedisLockManager {
 			}
 		}
 
-		return false;
+		return null;
 	}
 
-	public void unLock(String key) {
-		String value = lockValueHolder.get();
-		if (value == null) {
-			return;
-		}
+	public void unLock(String key, String value) {
+		if (value == null) return;
 
 		redisTemplate.execute(
 				new DefaultRedisScript<>(LOCK_REMOVE_SCRIPT, Long.class),
 				Collections.singletonList(key),
 				value
 		);
-
-		lockValueHolder.remove();
 	}
 }

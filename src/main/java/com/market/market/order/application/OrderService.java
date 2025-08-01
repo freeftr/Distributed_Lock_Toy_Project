@@ -3,7 +3,7 @@ package com.market.market.order.application;
 import com.market.market.common.annotation.RedisLock;
 import com.market.market.common.exception.BadRequestException;
 import com.market.market.common.exception.ErrorCode;
-import com.market.market.common.functional.FunctionalDistributedLockExecutor;
+import com.market.market.common.infrastructure.FunctionalLockManager;
 import com.market.market.member.domain.Member;
 import com.market.market.member.domain.repository.MemberRepository;
 import com.market.market.order.domain.Order;
@@ -26,7 +26,7 @@ public class OrderService {
 	private final ProductRepository productRepository;
 	private final ProductQuantityRepository productQuantityRepository;
 	private final MemberRepository memberRepository;
-	private final FunctionalDistributedLockExecutor functionalDistributedLockExecutor;
+	private final FunctionalLockManager functionalLockManager;
 
 	@RedisLock(key = "'productId:' + #productId")
 	public void orderAopLock(Long productId, OrderRequest request) {
@@ -57,10 +57,8 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
-	@Transactional
 	public void orderFunctionalLock(Long productId, OrderRequest request) {
-		String key = "LOCK:productId:" + productId;
-		long leaseTime = 3000L;
+		String key = "productId:" + productId;
 
 		Member member = memberRepository.findById(request.buyerId())
 				.orElseThrow(() -> new BadRequestException(ErrorCode.MEMBER_NOT_FOUND));
@@ -68,8 +66,7 @@ public class OrderService {
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
 
-		functionalDistributedLockExecutor.executeWithLock(key, () -> {
-
+		functionalLockManager.tryLock(key, () -> {
 			ProductQuantity quantity = productQuantityRepository.findByProductId(productId)
 					.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
 

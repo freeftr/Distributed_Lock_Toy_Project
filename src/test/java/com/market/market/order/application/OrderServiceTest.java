@@ -35,9 +35,6 @@ class OrderServiceTest {
 	private ProductQuantityRepository productQuantityRepository;
 
 	@Autowired
-	private OrderRepository orderRepository;
-
-	@Autowired
 	private MemberRepository memberRepository;
 
 	private Long productId;
@@ -98,7 +95,6 @@ class OrderServiceTest {
 	void 동시에_100개의_주문_FunctionalLock() throws InterruptedException {
 		ProductQuantity quantity = productQuantityRepository.findByProductId(productId)
 				.orElseThrow();
-		quantity.increase(100);
 		productQuantityRepository.save(quantity);
 
 		int threadCount = 100;
