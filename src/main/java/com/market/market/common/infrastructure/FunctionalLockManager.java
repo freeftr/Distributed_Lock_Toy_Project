@@ -30,6 +30,8 @@ public class FunctionalLockManager {
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final SupplierTransaction supplierTransaction;
 
+	private static final ThreadLocal<String> lockValueHolder = new ThreadLocal<>();
+
 	public <T> T tryLock(String key, Supplier<T> supplier) {
 		String value = UUID.randomUUID().toString();
 		long endTime = System.currentTimeMillis() + WAIT_TIME;
@@ -41,11 +43,13 @@ public class FunctionalLockManager {
 					Duration.ofMillis(LEASE_TIME)
 			);
 
-			if (isSuccess) {
+			if (Boolean.TRUE.equals(isSuccess)) {
+				lockValueHolder.set(value);
 				try {
 					return supplierTransaction.proceed(supplier);
 				} finally {
-					unLock(key, value);
+					unLock(key);
+					lockValueHolder.remove();
 				}
 			}
 
@@ -60,7 +64,12 @@ public class FunctionalLockManager {
 		throw new RuntimeException("락 획득 실패: " + key);
 	}
 
-	public void unLock(String key, String value) {
+	public void unLock(String key) {
+		String value = lockValueHolder.get();
+		if (value == null) {
+			return;
+		}
+
 		redisTemplate.execute(
 				new DefaultRedisScript<>(LOCK_REMOVE_SCRIPT, Long.class),
 				Collections.singletonList(key),

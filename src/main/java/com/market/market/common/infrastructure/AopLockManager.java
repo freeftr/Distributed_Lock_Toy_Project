@@ -27,7 +27,9 @@ public class AopLockManager {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 
-	public String tryLock(String key) {
+	private static final ThreadLocal<String> lockValueHolder = new ThreadLocal<>();
+
+	public boolean tryLock(String key) {
 		String value = UUID.randomUUID().toString();
 		long endTime = System.currentTimeMillis() + WAIT_TIME;
 
@@ -39,7 +41,8 @@ public class AopLockManager {
 			);
 
 			if (Boolean.TRUE.equals(isSuccess)) {
-				return value;
+				lockValueHolder.set(value);
+				return true;
 			}
 
 			try {
@@ -50,10 +53,11 @@ public class AopLockManager {
 			}
 		}
 
-		return null;
+		return false;
 	}
 
-	public void unLock(String key, String value) {
+	public void unLock(String key) {
+		String value = lockValueHolder.get();
 		if (value == null) return;
 
 		redisTemplate.execute(
@@ -61,5 +65,7 @@ public class AopLockManager {
 				Collections.singletonList(key),
 				value
 		);
+
+		lockValueHolder.remove();
 	}
 }

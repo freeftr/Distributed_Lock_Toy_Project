@@ -2,7 +2,6 @@ package com.market.market.order.application;
 
 import com.market.market.member.domain.Member;
 import com.market.market.member.domain.repository.MemberRepository;
-import com.market.market.order.domain.repository.OrderRepository;
 import com.market.market.order.dto.request.OrderRequest;
 import com.market.market.product.domain.Product;
 import com.market.market.product.domain.ProductQuantity;
@@ -64,7 +63,7 @@ class OrderServiceTest {
 	}
 
 	@Test
-	void 동시에_100개의_주문_AOP() throws InterruptedException {
+	void 동시에_100개의_주문_AOPLock() throws InterruptedException {
 		int threadCount = 100;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);

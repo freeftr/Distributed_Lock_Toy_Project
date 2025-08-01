@@ -14,7 +14,6 @@ import com.market.market.product.domain.Product;
 import com.market.market.product.domain.ProductQuantity;
 import com.market.market.product.domain.repository.ProductQuantityRepository;
 import com.market.market.product.domain.repository.ProductRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
