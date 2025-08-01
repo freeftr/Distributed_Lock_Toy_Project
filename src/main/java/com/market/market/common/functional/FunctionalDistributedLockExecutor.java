@@ -15,8 +15,8 @@ public class FunctionalDistributedLockExecutor {
 	private final RedisLockManager redisLockManager;
 
 	@Transactional
-	public <T> T executeWithLock(String key, long leaseTime, Supplier<T> task) {
-		boolean available = redisLockManager.tryLock(key, leaseTime);
+	public <T> T executeWithLock(String key, Supplier<T> task) {
+		boolean available = redisLockManager.tryLock(key);
 		if (!available) {
 			throw new BadRequestException(ErrorCode.PRODUCT_IS_LOCKED_AOP);
 		}

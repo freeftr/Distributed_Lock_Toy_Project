@@ -42,7 +42,7 @@ public class RedisLockAop {
 		);
 
 		try {
-			boolean available = redisLockManager.tryLock(key, leaseTime);
+			boolean available = redisLockManager.tryLock(key);
 			if (!available) {
 				throw new BadRequestException(ErrorCode.PRODUCT_IS_LOCKED_AOP);
 			}

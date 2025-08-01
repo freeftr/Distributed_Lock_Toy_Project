@@ -24,21 +24,36 @@ public class RedisLockManager {
 
 	private static final ThreadLocal<String> lockValueHolder = new ThreadLocal<>();
 
+	private static final long WAIT_TIME = 3000L;
+	private static final long LEASE_TIME = 10000L;
+
 	private final RedisTemplate<String, Object> redisTemplate;
 
-	public boolean tryLock(String key, long leaseTime) {
+	public boolean tryLock(String key) {
 		String value = UUID.randomUUID().toString();
-		Boolean isSuccess = redisTemplate.opsForValue().setIfAbsent(
-				key,
-				value,
-				Duration.ofMillis(leaseTime)
-		);
+		long endTime = System.currentTimeMillis() + WAIT_TIME;
 
-		if (isSuccess) {
-			lockValueHolder.set(value);
+		while (System.currentTimeMillis() < endTime) {
+			Boolean isSuccess = redisTemplate.opsForValue().setIfAbsent(
+					key,
+					value,
+					Duration.ofMillis(LEASE_TIME)
+			);
+
+			if (isSuccess) {
+				lockValueHolder.set(value);
+				return true;
+			}
+
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				break;
+			}
 		}
 
-		return isSuccess;
+		return false;
 	}
 
 	public void unLock(String key) {
@@ -48,7 +63,7 @@ public class RedisLockManager {
 		}
 
 		redisTemplate.execute(
-				new DefaultRedisScript<>(LOCK_REMOVE_SCRIPT, long.class),
+				new DefaultRedisScript<>(LOCK_REMOVE_SCRIPT, Long.class),
 				Collections.singletonList(key),
 				value
 		);

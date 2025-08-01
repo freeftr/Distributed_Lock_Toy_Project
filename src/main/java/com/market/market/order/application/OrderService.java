@@ -57,6 +57,7 @@ public class OrderService {
 		orderRepository.save(order);
 	}
 
+	@Transactional
 	public void orderFunctionalLock(Long productId, OrderRequest request) {
 		String key = "LOCK:productId:" + productId;
 		long leaseTime = 3000L;
@@ -67,7 +68,7 @@ public class OrderService {
 		Product product = productRepository.findById(productId)
 				.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
 
-		functionalDistributedLockExecutor.executeWithLock(key, leaseTime, () -> {
+		functionalDistributedLockExecutor.executeWithLock(key, () -> {
 
 			ProductQuantity quantity = productQuantityRepository.findByProductId(productId)
 					.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));

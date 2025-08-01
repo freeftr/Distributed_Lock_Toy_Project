@@ -1,5 +1,7 @@
 package com.market.market.order.application;
 
+import com.market.market.member.domain.Member;
+import com.market.market.member.domain.repository.MemberRepository;
 import com.market.market.order.domain.repository.OrderRepository;
 import com.market.market.order.dto.request.OrderRequest;
 import com.market.market.product.domain.Product;
@@ -21,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-class OrderServiceConcurrencyTest {
+class OrderServiceTest {
 
 	@Autowired
 	private OrderService orderService;
@@ -35,10 +37,19 @@ class OrderServiceConcurrencyTest {
 	@Autowired
 	private OrderRepository orderRepository;
 
+	@Autowired
+	private MemberRepository memberRepository;
+
 	private Long productId;
+	private Long buyerId;
 
 	@BeforeEach
 	void setUp() {
+		Member member = Member.builder()
+				.name("박종하")
+				.build();
+		buyerId = memberRepository.save(member).getId();
+
 		Product product = Product.builder()
 				.name("테스트 상품")
 				.price(1000)
@@ -49,27 +60,25 @@ class OrderServiceConcurrencyTest {
 
 		ProductQuantity quantity = ProductQuantity.builder()
 				.productId(productId)
-				.quantity(1)
+				.quantity(100)
 				.build();
 
 		productQuantityRepository.save(quantity);
 	}
 
 	@Test
-	void 동시에_10개의_주문을_요청하면_정확히_1개만_성공한다() throws InterruptedException {
-		int threadCount = 10;
+	void 동시에_100개의_주문_AOP() throws InterruptedException {
+		int threadCount = 100;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);
 
 		for (int i = 0; i < threadCount; i++) {
-			final long buyerId = i + 1;
-
 			executorService.submit(() -> {
 				try {
 					OrderRequest request = new OrderRequest(buyerId, 1);
 					orderService.orderAopLock(productId, request);
 				} catch (Exception e) {
-					log.error("주문 실패 " + e.getMessage(), e);
+					log.error("AOP 주문 실패: {}", e.getMessage());
 				} finally {
 					latch.countDown();
 				}
@@ -81,6 +90,40 @@ class OrderServiceConcurrencyTest {
 		ProductQuantity productQuantity = productQuantityRepository.findByProductId(productId)
 				.orElseThrow();
 
+		log.info("AOP 최종 재고: {}", productQuantity.getQuantity());
+		assertThat(productQuantity.getQuantity()).isEqualTo(0);
+	}
+
+	@Test
+	void 동시에_100개의_주문_FunctionalLock() throws InterruptedException {
+		ProductQuantity quantity = productQuantityRepository.findByProductId(productId)
+				.orElseThrow();
+		quantity.increase(100);
+		productQuantityRepository.save(quantity);
+
+		int threadCount = 100;
+		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+		CountDownLatch latch = new CountDownLatch(threadCount);
+
+		for (int i = 0; i < threadCount; i++) {
+			executorService.submit(() -> {
+				try {
+					OrderRequest request = new OrderRequest(buyerId, 1);
+					orderService.orderFunctionalLock(productId, request);
+				} catch (Exception e) {
+					log.error("Functional 주문 실패: {}", e.getMessage());
+				} finally {
+					latch.countDown();
+				}
+			});
+		}
+
+		latch.await();
+
+		ProductQuantity productQuantity = productQuantityRepository.findByProductId(productId)
+				.orElseThrow();
+
+		log.info("Functional 최종 재고: {}", productQuantity.getQuantity());
 		assertThat(productQuantity.getQuantity()).isEqualTo(0);
 	}
 }
