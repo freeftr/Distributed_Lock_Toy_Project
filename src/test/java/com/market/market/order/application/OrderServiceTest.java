@@ -100,9 +100,6 @@ class OrderServiceTest {
 
 	@Test
 	void 동시에_100개의_주문_FunctionalLock() throws InterruptedException {
-		ProductQuantity quantity = productQuantityRepository.findByProductId(productId)
-				.orElseThrow();
-		productQuantityRepository.save(quantity);
 
 		int threadCount = 100;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
