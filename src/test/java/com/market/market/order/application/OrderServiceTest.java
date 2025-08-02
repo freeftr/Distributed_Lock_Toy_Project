@@ -100,7 +100,6 @@ class OrderServiceTest {
 
 	@Test
 	void 동시에_100개의_주문_FunctionalLock() throws InterruptedException {
-
 		int threadCount = 100;
 		ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
 		CountDownLatch latch = new CountDownLatch(threadCount);

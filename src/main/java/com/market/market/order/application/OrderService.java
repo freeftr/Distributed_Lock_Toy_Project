@@ -29,7 +29,7 @@ public class OrderService {
 
 	@RedisLock(key = "'productId:' + #productId")
 	public void orderAopLock(Long productId, OrderRequest request) throws InterruptedException {
-		Thread.sleep(50);
+//		Thread.sleep(50);
 
 		Member member = memberRepository.findById(request.buyerId())
 				.orElseThrow(() -> new BadRequestException(ErrorCode.MEMBER_NOT_FOUND));
@@ -58,7 +58,12 @@ public class OrderService {
 	}
 
 	public void orderFunctionalLock(Long productId, OrderRequest request) throws InterruptedException {
-		Thread.sleep(50);
+//		Thread.sleep(50);
+		Member member = memberRepository.findById(request.buyerId())
+				.orElseThrow(() -> new BadRequestException(ErrorCode.MEMBER_NOT_FOUND));
+
+		Product product = productRepository.findById(productId)
+				.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
 
 		String key = "productId:" + productId;
 		functionalLockManager.tryLock(key, () -> {
@@ -68,8 +73,6 @@ public class OrderService {
 			quantity.decrease(request.amount());
 
 			if (quantity.isSoldOut()) {
-				Product product = productRepository.findById(productId)
-						.orElseThrow(() -> new BadRequestException(ErrorCode.PRODUCT_NOT_FOUND));
 				product.markSoldOut();
 			}
 
