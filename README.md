@@ -36,8 +36,8 @@ AOP 분산 락은 다음의 흐름으로 구현했습니다:
 
 함수형 분산 락은 다음과 같이 동작합니다:
 
-1. `tryLock(key, () -> { ... })` 형식으로 비즈니스 로직을 `FucntionalLockManager`에 전달
-2. `FucntionalLockManager`를 통해 Redis에 락 키를 설정
+1. `tryLock(key, () -> { ... })` 형식으로 비즈니스 로직을 `FunctionalLockManager`에 전달
+2. `FunctionalLockManager`를 통해 Redis에 락 키를 설정
 3. 락 획득 시 `SupplierTransaction`에서 트랜잭션 실행
 4. 비즈니스 로직 후 락 해제
 
